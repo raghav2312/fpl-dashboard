@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from pathlib import Path
+from charts import create_rank_chart, create_points_chart, create_rank_change_chart, create_bench_points_chart
 
 
 PROCESSED_PATH = Path("data/processed/manager_history.csv")
@@ -66,8 +67,8 @@ col4.metric("Money in the Bank", f"£{latest['money_in_the_bank']/10:.1f}m")
 
 #Create another set of four columns to display additional metrics related to the manager's performance, such as the best gameweek points, worst gameweek points, total bench points lost, and total transfer cost. Each column will contain a metric with a title and a value, providing insights into the manager's performance across different gameweeks.
 col5, col6, col7, col8 = st.columns(4)
-col5.metric("Best GW", f'GW{int(best_gw['gameweek'])}', int(best_gw['gw_points']))
-col6.metric("Worst GW", f'GW{int(worst_gw['gameweek'])}', int(worst_gw['gw_points']))
+col5.metric("Best GW", f'GW{int(best_gw['gameweek'])}')
+col6.metric("Worst GW", f'GW{int(worst_gw['gameweek'])}')
 col7.metric("Bench Points Lost", int(total_bench_points))
 col8.metric("Total Transfer Cost", int(total_transfer_cost))
 
@@ -78,65 +79,33 @@ st.subheader("Overall Rank Progression")
 
 
 #Create a line chart using Plotly Express to visualize the overall rank progression of the manager across different gameweeks. The x-axis represents the gameweek number, while the y-axis represents the overall rank. Markers are added to each data point for better visibility, and the title of the chart is set to "Overall Rank by Gameweek". The y-axis is reversed to show better ranks (lower numbers) at the top of the chart.
-rank_fig = px.line(
-    filtered_df, 
-    x="gameweek", 
-    y="overall_rank", 
-    markers=True,
-    title="Overall Rank by Gameweek",  
-)
-
-
-
 #Reverse the y-axis of the rank_fig to show better ranks (lower numbers) at the top of the chart, which is a common convention for ranking visualizations. This is achieved by setting the autorange property of the y-axis to "reversed" using the update_yaxes method of the Plotly figure object.
-rank_fig.update_yaxes(autorange="reversed")
+st.plotly_chart(create_rank_chart(filtered_df), use_container_width=True)
 
-st.plotly_chart(rank_fig, use_container_width=True)
 
 
 
 #Points Chart
 st.subheader("Gameweek Points")
 
-points_fig = px.bar(
-    filtered_df,
-    x="gameweek",
-    y="gw_points",
-    title="Points by gameweek"
-)
-
-
 #Create a bar chart using Plotly Express to visualize the points scored by the manager in each gameweek. The x-axis represents the gameweek number, while the y-axis represents the points scored in that gameweek. The title of the chart is set to "Points by gameweek". Each bar in the chart corresponds to the points scored in a specific gameweek, allowing for easy comparison across different gameweeks.
-st.plotly_chart(points_fig, use_container_width=True)
+st.plotly_chart(create_points_chart(filtered_df), use_container_width=True)
+
+
 
 
 #Rank Change Chart
 st.subheader("Rank Movement")
 
-
 #Create a bar chart using Plotly Express to visualize the overall rank change of the manager across different gameweeks. The x-axis represents the gameweek number, while the y-axis represents the rank change compared to the previous gameweek. The title of the chart is set to "Rank movement by Gameweek". Positive values indicate an improvement in rank, while negative values indicate a decline in rank.
-rank_change_fig = px.bar(
-    filtered_df,
-    x="gameweek",
-    y="rank_change",
-    title="Rank movement by Gameweek"
-)
-
-st.plotly_chart(rank_change_fig, use_container_width=True)
+st.plotly_chart(create_rank_change_chart(filtered_df), use_container_width=True)
 
 
 
 #Create a bar chart using Plotly Express to visualize the bench points lost by the manager in each gameweek. The x-axis represents the gameweek number, while the y-axis represents the bench points lost in that gameweek. The title of the chart is set to "Bench Points Lost by Gameweek". Each bar in the chart corresponds to the bench points lost in a specific gameweek, allowing for easy comparison across different gameweeks.
 st.subheader("Bench Points Lost")
+st.plotly_chart(create_bench_points_chart(filtered_df), use_container_width=True)
 
-bench_fig = px.bar(
-    filtered_df,
-    x="gameweek",
-    y="bench_points",
-    title="Bench Points Lost by Gameweek"
-)
-
-st.plotly_chart(bench_fig, use_container_width=True)
 
 #Data table
 st.subheader("Processed Gameweek Data")
