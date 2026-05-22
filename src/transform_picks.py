@@ -26,7 +26,7 @@ def transform_picks():
             rows.append(
                 {
                     "gameweek": gameweek,
-                    "element": player["element"],
+                    "player_id": player["element"],
                     "position": position,
                     "multiplier": multiplier,
                     "is_captain": player["is_captain"],

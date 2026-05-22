@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 import pandas as pd
-from streamlit import elements
 
 RAW_PATH = Path("data/raw/bootstrap_static.json")
 PROCESSED_PATH = Path("data/processed/players.csv")
@@ -28,7 +27,7 @@ def transform_players():
 
         rows.append(
             {
-                player["id"]: player["id"],
+                "player_id": player["id"],
                 "first_name": player["first_name"],
                 "second_name": player["second_name"],
                 "web_name": player["web_name"],

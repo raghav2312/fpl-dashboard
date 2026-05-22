@@ -6,6 +6,7 @@ from charts import create_rank_chart, create_points_chart, create_rank_change_ch
 
 
 PROCESSED_PATH = Path("data/processed/manager_history.csv")
+SQUAD_PATH = Path("data/processed/manager_squad.csv")
 
 
 # Set the page configuration for the Streamlit app, including the title, icon, and layout. The page title is set to "FPL Dashboard", the page icon is set to a soccer emoji, and the layout is set to "wide" to utilize the full width of the browser window for displaying content.
@@ -67,8 +68,8 @@ col4.metric("Money in the Bank", f"£{latest['money_in_the_bank']/10:.1f}m")
 
 #Create another set of four columns to display additional metrics related to the manager's performance, such as the best gameweek points, worst gameweek points, total bench points lost, and total transfer cost. Each column will contain a metric with a title and a value, providing insights into the manager's performance across different gameweeks.
 col5, col6, col7, col8 = st.columns(4)
-col5.metric("Best GW", f'GW{int(best_gw['gameweek'])}')
-col6.metric("Worst GW", f'GW{int(worst_gw['gameweek'])}')
+col5.metric("Best GW", f"GW{int(best_gw["gameweek"])}")
+col6.metric("Worst GW", f"GW{int(worst_gw["gameweek"])}")
 col7.metric("Bench Points Lost", int(total_bench_points))
 col8.metric("Total Transfer Cost", int(total_transfer_cost))
 
@@ -83,15 +84,12 @@ st.subheader("Overall Rank Progression")
 st.plotly_chart(create_rank_chart(filtered_df), use_container_width=True)
 
 
-
-
 #Points Chart
 st.subheader("Gameweek Points")
 
+
 #Create a bar chart using Plotly Express to visualize the points scored by the manager in each gameweek. The x-axis represents the gameweek number, while the y-axis represents the points scored in that gameweek. The title of the chart is set to "Points by gameweek". Each bar in the chart corresponds to the points scored in a specific gameweek, allowing for easy comparison across different gameweeks.
 st.plotly_chart(create_points_chart(filtered_df), use_container_width=True)
-
-
 
 
 #Rank Change Chart
@@ -101,10 +99,62 @@ st.subheader("Rank Movement")
 st.plotly_chart(create_rank_change_chart(filtered_df), use_container_width=True)
 
 
-
 #Create a bar chart using Plotly Express to visualize the bench points lost by the manager in each gameweek. The x-axis represents the gameweek number, while the y-axis represents the bench points lost in that gameweek. The title of the chart is set to "Bench Points Lost by Gameweek". Each bar in the chart corresponds to the bench points lost in a specific gameweek, allowing for easy comparison across different gameweeks.
 st.subheader("Bench Points Lost")
 st.plotly_chart(create_bench_points_chart(filtered_df), use_container_width=True)
+
+
+squad_df = pd.read_csv(SQUAD_PATH)
+
+st.divider()
+st.subheader("Gameweek Squad View")
+
+selected_gw = st.selectbox(
+    "Select Gameweek",
+    sorted(df["gameweek"].unique())
+)
+
+gw_squad = squad_df[squad_df["gameweek"] == selected_gw]
+
+gw_squad["role"] = "Player"
+gw_squad.loc[gw_squad["is_captain"], "role"] = "Captain"
+gw_squad.loc[gw_squad["is_vice_captain"], "role"] = "Vice-Captain"
+
+starting_11 = gw_squad[gw_squad["is_starting"] == True]
+bench = gw_squad[gw_squad["is_bench"] == True]
+
+st.write("### Starting 11")
+st.dataframe(
+    starting_11[
+        [
+            "player_name", 
+            "team", 
+            "player_position", 
+            "squad_position",
+            "multiplier", 
+            "role",
+            "selected_by_percent"
+        ]
+    ],
+    use_container_width=True    
+)
+
+st.write("### Bench")
+st.dataframe(
+    bench[
+        [
+            "player_name", 
+            "team", 
+            "player_position", 
+            "squad_position",
+            "multiplier", 
+            "role",
+            "selected_by_percent"
+        ]
+    ],
+    use_container_width=True    
+)
+
 
 
 #Data table
